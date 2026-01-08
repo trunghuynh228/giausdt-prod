@@ -152,7 +152,8 @@ export function ProviderComparison({ holdstationRate, isLoading }: ProviderCompa
                 const hasRate = provider.rate !== null;
                 const isHoldstation = provider.name === 'Holdstation Pay';
                 const isHoldstationBest = isHoldstation && hasRate && provider.rate === bestRate;
-                const diffPercent = hasRate && provider.rate !== bestRate ? calculateDiffPercent(provider.rate!) : null;
+                // Never show percentage difference for Holdstation Pay as requested
+                const diffPercent = !isHoldstation && hasRate && provider.rate !== bestRate ? calculateDiffPercent(provider.rate!) : null;
 
                 return (
                   <tr
@@ -233,7 +234,8 @@ export function ProviderComparison({ holdstationRate, isLoading }: ProviderCompa
             const hasRate = provider.rate !== null;
             const isHoldstation = provider.name === 'Holdstation Pay';
             const isHoldstationBest = isHoldstation && hasRate && provider.rate === bestRate;
-            const diffPercent = hasRate && provider.rate !== bestRate ? calculateDiffPercent(provider.rate!) : null;
+            // Never show percentage difference for Holdstation Pay as requested
+            const diffPercent = !isHoldstation && hasRate && provider.rate !== bestRate ? calculateDiffPercent(provider.rate!) : null;
 
             return (
               <div
