@@ -129,6 +129,82 @@ const ROBUST_HEADERS = {
     'Upgrade-Insecure-Requests': '1'
 };
 
+// Simplified Spoof Headers for Binance/OKX (Avoid TLS fingerprint mismatches)
+const SIMPLE_SPOOF_HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Accept': 'application/json',
+    'Cache-Control': 'no-cache',
+    'Pragma': 'no-cache',
+};
+
+// Binance P2P Quoted Price API
+async function fetchBinanceRate(): Promise<number | null> {
+    try {
+        console.log('Fetching Binance P2P quoted price...');
+        const response = await fetchWithRetry('https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search', {
+            method: 'POST',
+            headers: {
+                ...SIMPLE_SPOOF_HEADERS,
+                'Content-Type': 'application/json',
+                'Origin': 'https://p2p.binance.com',
+                'Referer': 'https://p2p.binance.com/en/trade/buy/USDT',
+                'clientType': 'web'
+            },
+            body: JSON.stringify({
+                asset: "USDT",
+                fiat: "VND",
+                merchantCheck: false,
+                page: 1,
+                rows: 10,
+                tradeType: "BUY"
+            }),
+        });
+
+        if (!response.ok) return null;
+        const data = await response.json();
+
+        if (Array.isArray(data?.data) && data.data.length > 0) {
+            const bestAd = data.data.find((item: any) =>
+                !item.privilegeDesc &&
+                item.advertiser?.userType === 'merchant'
+            );
+            if (bestAd?.adv?.price) {
+                const rate = parseFloat(bestAd.adv.price);
+                return rate >= 1000 ? rate : null;
+            }
+        }
+        return null;
+    } catch (error) {
+        console.error('Error fetching Binance rate:', error);
+        return null;
+    }
+}
+
+// Onramp Money API - Use MINIMAL headers to avoid blocking
+async function fetchOnrampRate(): Promise<number | null> {
+    try {
+        console.log('Fetching Onramp Money rate...');
+        const response = await fetchWithRetry(
+            'https://api.onramp.money/onramp/api/v4/buy/public/coinDetails?coinCode=usdt&chainId=1&coinAmount=1&fiatType=5&appId=1&paymentType=1',
+            {
+                method: 'GET',
+                headers: MINIMAL_HEADERS // Strict WAF bypass not needed, keep it simple
+            }
+        );
+
+        if (!response.ok) return null;
+        const data = await response.json();
+        if (data?.data?.price) {
+            const rate = parseFloat(data.data.price);
+            return rate >= 1000 ? rate : null;
+        }
+        return null;
+    } catch (error) {
+        console.error('Error fetching Onramp rate:', error);
+        return null;
+    }
+}
+
 // AlchemyPay API
 async function fetchAlchemyRate(): Promise<number | null> {
     try {
@@ -136,10 +212,10 @@ async function fetchAlchemyRate(): Promise<number | null> {
         const response = await fetchWithRetry('https://api.alchemypay.org/index/v2/page/buy/trade/quote', {
             method: 'POST',
             headers: {
-                ...ROBUST_HEADERS,
+                ...ROBUST_HEADERS, // Use ROBUST for Alchemy (worked once)
                 'Content-Type': 'application/json',
                 'Origin': 'https://alchemypay.org',
-                'Referer': 'https://alchemypay.org/'
+                'Referer': 'https://alchemypay.org/' // Ensure trailing slash
             },
             body: JSON.stringify({
                 crypto: 'USDT',
@@ -225,7 +301,7 @@ async function fetchOkxRate(): Promise<number | null> {
         const response = await fetchWithRetry('https://www.okx.com/v3/c2c/tradingOrders/getMarketplaceAdsPrelogin?paymentMethod=all&quoteMinAmountPerOrder=10000000&side=sell&userType=all&sortType=price_asc&limit=100&cryptoCurrency=USDT&fiatCurrency=VND&currentPage=1&numberPerPage=5&t=' + Date.now(), {
             method: 'GET',
             headers: {
-                ...SECURE_SPOOF_HEADERS,
+                ...SIMPLE_SPOOF_HEADERS,
                 'Accept': 'application/json',
                 'Origin': 'https://www.okx.com',
                 'Referer': 'https://www.okx.com/p2p-markets/vnd/buy-usdt'
