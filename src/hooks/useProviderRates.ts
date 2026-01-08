@@ -7,6 +7,7 @@ interface ProviderRates {
   alchemy: number | null;
   bybit: number | null;
   moonpay: number | null;
+  okx: number | null;
   timestamp: string;
 }
 

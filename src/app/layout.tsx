@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 // Layouts in Next.js 13+ app directory render on server by default.
 // Context providers must be in a Client Component.
 import { Providers } from "./providers";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -27,6 +28,7 @@ export default function RootLayout({
         <html lang="en" suppressHydrationWarning>
             <body>
                 <Providers>
+                    <GoogleAnalytics />
                     <TooltipProvider>
                         {children}
                         <Toaster />

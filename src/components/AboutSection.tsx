@@ -77,6 +77,16 @@ export const AboutSection = () => {
                   MoonPay
                 </a>
               </li>
+              <li>
+                <a
+                  href="https://www.okx.com/p2p-markets/vnd/buy-usdt"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-primary transition-colors"
+                >
+                  OKX P2P
+                </a>
+              </li>
             </ul>
           </div>
 

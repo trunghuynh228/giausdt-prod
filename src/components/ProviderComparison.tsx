@@ -9,6 +9,7 @@ import onrampLogo from '@/assets/onramp-logo.png';
 import alchemyLogo from '@/assets/alchemy-logo.png';
 import bybitLogo from '@/assets/bybit-logo.png';
 import moonpayLogo from '@/assets/moonpay-logo.png';
+import okxLogo from '@/assets/okx-logo.jpg';
 
 interface ProviderComparisonProps {
   holdstationRate?: ExchangeRate;
@@ -68,6 +69,12 @@ export function ProviderComparison({ holdstationRate, isLoading }: ProviderCompa
         rate: providerRates?.moonpay || null,
         url: 'https://www.moonpay.com/buy/usdt',
         logo: moonpayLogo
+      },
+      {
+        name: 'OKX P2P',
+        rate: providerRates?.okx || null,
+        url: 'https://www.okx.com/p2p-markets/vnd/buy-usdt',
+        logo: okxLogo
       },
     ];
   }, [holdstationRate, providerRates]);

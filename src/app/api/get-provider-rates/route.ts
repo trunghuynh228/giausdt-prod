@@ -51,6 +51,7 @@ async function fetchBinanceRate(): Promise<number | null> {
 
                 if (bestAd.adv?.price) {
                     const rate = parseFloat(bestAd.adv.price);
+                    if (rate < 1000) return null;
                     console.log('Binance rate:', rate);
                     return rate;
                 }
@@ -73,6 +74,7 @@ async function fetchOnrampRate(): Promise<number | null> {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
                 },
             }
         );
@@ -88,6 +90,7 @@ async function fetchOnrampRate(): Promise<number | null> {
         // Parse the response to get the VND rate
         if (data?.data?.price) {
             const rate = parseFloat(data.data.price);
+            if (rate < 1000) return null;
             console.log('Onramp rate:', rate);
             return rate;
         }
@@ -130,15 +133,15 @@ async function fetchAlchemyRate(): Promise<number | null> {
 
         // Parse the response to get the VND rate per USDT
         // The API returns fiatAmount for given crypto amount, so we calculate the rate
+        let rate = 0;
         if (data?.data?.cryptoPrice) {
-            const rate = parseFloat(data.data.cryptoPrice);
-            console.log('AlchemyPay rate:', rate);
-            return rate;
+            rate = parseFloat(data.data.cryptoPrice);
+        } else if (data?.data?.fiatAmount && data?.data?.cryptoAmount) {
+            rate = parseFloat(data.data.fiatAmount) / parseFloat(data.data.cryptoAmount);
         }
-        // Fallback: calculate rate from fiatAmount / cryptoAmount
-        if (data?.data?.fiatAmount && data?.data?.cryptoAmount) {
-            const rate = parseFloat(data.data.fiatAmount) / parseFloat(data.data.cryptoAmount);
-            console.log('AlchemyPay calculated rate:', rate);
+
+        if (rate > 1000) {
+            console.log('AlchemyPay rate:', rate);
             return rate;
         }
         return null;
@@ -156,6 +159,7 @@ async function fetchBybitRate(): Promise<number | null> {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
             }
         });
 
@@ -169,6 +173,7 @@ async function fetchBybitRate(): Promise<number | null> {
 
         if (data?.ret_code === 0 && data?.result?.payments?.list?.[0]?.price) {
             const price = parseFloat(data.result.payments.list[0].price);
+            if (price < 1000) return null;
             console.log('Bybit rate:', price);
             return price;
         }
@@ -187,6 +192,7 @@ async function fetchMoonPayRate(): Promise<number | null> {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
             }
         });
 
@@ -200,6 +206,7 @@ async function fetchMoonPayRate(): Promise<number | null> {
 
         if (data?.quoteCurrencyPrice) {
             const price = data.quoteCurrencyPrice;
+            if (price < 1000) return null;
             console.log('MoonPay rate:', price);
             return price;
         }
@@ -210,17 +217,51 @@ async function fetchMoonPayRate(): Promise<number | null> {
     }
 }
 
+// OKX P2P API
+async function fetchOkxRate(): Promise<number | null> {
+    try {
+        console.log('Fetching OKX P2P rate...');
+        const response = await fetch('https://www.okx.com/v3/c2c/tradingOrders/getMarketplaceAdsPrelogin?paymentMethod=all&quoteMinAmountPerOrder=10000000&side=sell&userType=all&sortType=price_asc&limit=100&cryptoCurrency=USDT&fiatCurrency=VND&currentPage=1&numberPerPage=5&t=' + Date.now(), {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('OKX API error:', response.status);
+            return null;
+        }
+
+        const data = await response.json();
+        console.log('OKX response:', JSON.stringify(data));
+
+        if (data?.code === 0 && Array.isArray(data?.data?.sell) && data.data.sell.length > 0) {
+            const price = parseFloat(data.data.sell[0].price);
+            if (price < 1000) return null;
+            console.log('OKX rate:', price);
+            return price;
+        }
+        return null;
+    } catch (error) {
+        console.error('Error fetching OKX rate:', error);
+        return null;
+    }
+}
+
 export async function GET(request: Request) {
     try {
         console.log('Fetching all provider rates...');
 
         // Fetch all rates in parallel
-        const [binanceRate, onrampRate, alchemyRate, bybitRate, moonpayRate] = await Promise.all([
+        const [binanceRate, onrampRate, alchemyRate, bybitRate, moonpayRate, okxRate] = await Promise.all([
             fetchBinanceRate(),
             fetchOnrampRate(),
             fetchAlchemyRate(),
             fetchBybitRate(),
             fetchMoonPayRate(),
+            fetchOkxRate(),
         ]);
 
         const result = {
@@ -229,6 +270,7 @@ export async function GET(request: Request) {
             alchemy: alchemyRate,
             bybit: bybitRate,
             moonpay: moonpayRate,
+            okx: okxRate,
             timestamp: new Date().toISOString(),
         };
 
