@@ -1,3 +1,7 @@
+import { useMemo } from 'react';
+import { ArrowUpRight } from 'lucide-react';
+import { ExchangeRate } from '@/types/rates';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useProviderRates } from '@/hooks/useProviderRates';
 import holdstationLogo from '@/assets/holdstation-logo.png';
 import binanceLogo from '@/assets/binance-logo.png';
