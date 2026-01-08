@@ -144,10 +144,9 @@ async function fetchBinanceRate(): Promise<number | null> {
         const response = await fetchWithRetry('https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search', {
             method: 'POST',
             headers: {
-                ...SIMPLE_SPOOF_HEADERS,
+                ...MINIMAL_HEADERS,
                 'Content-Type': 'application/json',
                 'Origin': 'https://p2p.binance.com',
-                'Referer': 'https://p2p.binance.com/en/trade/buy/USDT',
                 'clientType': 'web'
             },
             body: JSON.stringify({
@@ -212,10 +211,8 @@ async function fetchAlchemyRate(): Promise<number | null> {
         const response = await fetchWithRetry('https://api.alchemypay.org/index/v2/page/buy/trade/quote', {
             method: 'POST',
             headers: {
-                ...ROBUST_HEADERS, // Use ROBUST for Alchemy (worked once)
-                'Content-Type': 'application/json',
-                'Origin': 'https://alchemypay.org',
-                'Referer': 'https://alchemypay.org/' // Ensure trailing slash
+                ...MINIMAL_HEADERS,
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 crypto: 'USDT',
