@@ -21,72 +21,7 @@ const BROWSER_HEADERS = {
     'Upgrade-Insecure-Requests': '1'
 };
 
-async function fetchWithRetry(url: string, options: RequestInit, retries = 2, backoff = 1000): Promise<Response> {
-    try {
-        const response = await fetch(url, options);
-        if (response.ok) return response;
-        throw new Error(`Request failed with status ${response.status}`);
-    } catch (error) {
-        if (retries <= 0) throw error;
-        console.log(`Retrying ${url}... (${retries} attempts left)`);
-        await new Promise(resolve => setTimeout(resolve, backoff + Math.random() * 500));
-        return fetchWithRetry(url, options, retries - 1, backoff * 1.5);
-    }
-}
 
-// Binance P2P Quoted Price API
-async function fetchBinanceRate(): Promise<number | null> {
-    try {
-        console.log('Fetching Binance P2P quoted price...');
-        const response = await fetchWithRetry('https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search', {
-            method: 'POST',
-            headers: {
-                ...BROWSER_HEADERS,
-                'Content-Type': 'application/json',
-                'Origin': 'https://p2p.binance.com',
-                'Referer': 'https://p2p.binance.com/en/trade/buy/USDT'
-            },
-            body: JSON.stringify({
-                asset: "USDT",
-                fiat: "VND",
-                merchantCheck: false,
-                page: 1,
-                rows: 10,
-                tradeType: "BUY"
-            }),
-        });
-
-        if (!response.ok) {
-            console.error('Binance API error:', response.status);
-            return null;
-        }
-
-        const data = await response.json();
-        // console.log('Binance response:', JSON.stringify(data));
-
-        // Get the first item that privilegeDesc is null and then get adv.price as rate
-        if (Array.isArray(data?.data) && data.data.length > 0) {
-            // Find first ad that is not promoted AND is from a merchant
-            const bestAd = data.data.find((item: any) =>
-                !item.privilegeDesc &&
-                item.advertiser?.userType === 'merchant'
-            );
-
-            if (bestAd) {
-                if (bestAd.adv?.price) {
-                    const rate = parseFloat(bestAd.adv.price);
-                    if (rate < 1000) return null;
-                    console.log('Binance rate:', rate);
-                    return rate;
-                }
-            }
-        }
-        return null;
-    } catch (error) {
-        console.error('Error fetching Binance rate:', error);
-        return null;
-    }
-}
 
 // Onramp Money API
 async function fetchOnrampRate(): Promise<number | null> {
@@ -125,64 +60,13 @@ async function fetchOnrampRate(): Promise<number | null> {
     }
 }
 
-// AlchemyPay API
-async function fetchAlchemyRate(): Promise<number | null> {
-    try {
-        console.log('Fetching AlchemyPay rate...');
-        const response = await fetchWithRetry('https://api.alchemypay.org/index/v2/page/buy/trade/quote', {
-            method: 'POST',
-            headers: {
-                ...BROWSER_HEADERS,
-                'Content-Type': 'application/json',
-                'Origin': 'https://alchemypay.org',
-                'Referer': 'https://alchemypay.org/'
-            },
-            body: JSON.stringify({
-                crypto: 'USDT',
-                fiat: 'VND',
-                side: 'buy',
-                amount: '1000000',
-                alpha2: 'VN',
-                network: 'BSC',
-                networkName: 'BNB Smart Chain (BEP20)',
-                payWayCode: null,
-                rawFiat: ''
-            }),
-        });
 
-        if (!response.ok) {
-            console.error('AlchemyPay API error:', response.status);
-            return null;
-        }
-
-        const data = await response.json();
-        // console.log('AlchemyPay response:', JSON.stringify(data));
-
-        // Parse the response to get the VND rate per USDT
-        // The API returns fiatAmount for given crypto amount, so we calculate the rate
-        let rate = 0;
-        if (data?.data?.cryptoPrice) {
-            rate = parseFloat(data.data.cryptoPrice);
-        } else if (data?.data?.fiatAmount && data?.data?.cryptoAmount) {
-            rate = parseFloat(data.data.fiatAmount) / parseFloat(data.data.cryptoAmount);
-        }
-
-        if (rate > 1000) {
-            console.log('AlchemyPay rate:', rate);
-            return rate;
-        }
-        return null;
-    } catch (error) {
-        console.error('Error fetching AlchemyPay rate:', error);
-        return null;
-    }
-}
 
 // Bybit P2P API
 async function fetchBybitRate(): Promise<number | null> {
     try {
         console.log('Fetching Bybit P2P rate...');
-        const response = await fetchWithRetry('https://www.bybit.com/x-api/fiat/public/channel/payment-list-w1?fiat=VND&crypto=USDT&direction=buy&quantity=1', {
+        const response = await fetch('https://www.bybit.com/x-api/fiat/public/channel/payment-list-w1?fiat=VND&crypto=USDT&direction=buy&quantity=1', {
             method: 'GET',
             headers: {
                 ...BROWSER_HEADERS,
@@ -217,7 +101,7 @@ async function fetchBybitRate(): Promise<number | null> {
 async function fetchMoonPayRate(): Promise<number | null> {
     try {
         console.log('Fetching MoonPay rate...');
-        const response = await fetchWithRetry('https://api.moonpay.com/v3/currencies/usdt/quote?baseCurrencyAmount=10000000&areFeesIncluded=true&fixed=true&apiKey=pk_live_R5Lf25uBfNZyKwccAZpzcxuL3ZdJ3Hc&baseCurrencyCode=vnd', {
+        const response = await fetch('https://api.moonpay.com/v3/currencies/usdt/quote?baseCurrencyAmount=10000000&areFeesIncluded=true&fixed=true&apiKey=pk_live_R5Lf25uBfNZyKwccAZpzcxuL3ZdJ3Hc&baseCurrencyCode=vnd', {
             method: 'GET',
             headers: {
                 ...BROWSER_HEADERS,
@@ -248,62 +132,27 @@ async function fetchMoonPayRate(): Promise<number | null> {
     }
 }
 
-// OKX P2P API
-async function fetchOkxRate(): Promise<number | null> {
-    try {
-        console.log('Fetching OKX P2P rate...');
-        const response = await fetchWithRetry('https://www.okx.com/v3/c2c/tradingOrders/getMarketplaceAdsPrelogin?paymentMethod=all&quoteMinAmountPerOrder=10000000&side=sell&userType=all&sortType=price_asc&limit=100&cryptoCurrency=USDT&fiatCurrency=VND&currentPage=1&numberPerPage=5&t=' + Date.now(), {
-            method: 'GET',
-            headers: {
-                ...BROWSER_HEADERS,
-                'Accept': 'application/json',
-                'Origin': 'https://www.okx.com',
-                'Referer': 'https://www.okx.com/p2p-markets/vnd/buy-usdt'
-            }
-        });
 
-        if (!response.ok) {
-            console.error('OKX API error:', response.status);
-            return null;
-        }
-
-        const data = await response.json();
-        // console.log('OKX response:', JSON.stringify(data));
-
-        if (data?.code === 0 && Array.isArray(data?.data?.sell) && data.data.sell.length > 0) {
-            const price = parseFloat(data.data.sell[0].price);
-            if (price < 1000) return null;
-            console.log('OKX rate:', price);
-            return price;
-        }
-        return null;
-    } catch (error) {
-        console.error('Error fetching OKX rate:', error);
-        return null;
-    }
-}
 
 export async function GET(request: Request) {
     try {
         console.log('Fetching all provider rates...');
 
         // Fetch all rates in parallel
-        const [binanceRate, onrampRate, alchemyRate, bybitRate, moonpayRate, okxRate] = await Promise.all([
-            fetchBinanceRate(),
+        // Fetch all rates in parallel
+        const [onrampRate, bybitRate, moonpayRate] = await Promise.all([
             fetchOnrampRate(),
-            fetchAlchemyRate(),
             fetchBybitRate(),
             fetchMoonPayRate(),
-            fetchOkxRate(),
         ]);
 
         const result = {
-            binance: binanceRate,
+            binance: null, // Fetched client-side
             onramp: onrampRate,
-            alchemy: alchemyRate,
+            alchemy: null, // Fetched client-side
             bybit: bybitRate,
             moonpay: moonpayRate,
-            okx: okxRate,
+            okx: null, // Fetched client-side
             timestamp: new Date().toISOString(),
         };
 

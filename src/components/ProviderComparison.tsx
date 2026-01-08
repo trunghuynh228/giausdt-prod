@@ -3,6 +3,7 @@ import { ArrowUpRight } from 'lucide-react';
 import { ExchangeRate } from '@/types/rates';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useProviderRates } from '@/hooks/useProviderRates';
+import { useClientRates } from '@/hooks/useClientRates';
 import holdstationLogo from '@/assets/holdstation-logo.png';
 import binanceLogo from '@/assets/binance-logo.png';
 import onrampLogo from '@/assets/onramp-logo.png';
@@ -27,7 +28,8 @@ interface Provider {
 }
 
 export function ProviderComparison({ holdstationRate, isLoading }: ProviderComparisonProps) {
-  const { data: providerRates, isLoading: isLoadingProviders } = useProviderRates();
+  const { data: serverRates, isLoading: isLoadingServer } = useProviderRates();
+  const { data: clientRates, isLoading: isLoadingClient } = useClientRates();
 
   const providers = useMemo<Provider[]>(() => {
     const holdstationBuy = holdstationRate?.buy || null;
@@ -42,42 +44,42 @@ export function ProviderComparison({ holdstationRate, isLoading }: ProviderCompa
       },
       {
         name: 'Binance P2P',
-        rate: providerRates?.binance || null,
+        rate: clientRates?.binance || null,
         url: 'https://p2p.binance.com/en/trade/buy/USDT/?fiat=VND',
         logo: binanceLogo
       },
       {
         name: 'Onramp Money',
-        rate: providerRates?.onramp || null,
+        rate: serverRates?.onramp || null,
         url: 'https://onramp.money',
         logo: onrampLogo
       },
       {
         name: 'AlchemyPay',
-        rate: providerRates?.alchemy || null,
+        rate: clientRates?.alchemy || null,
         url: 'https://alchemypay.org',
         logo: alchemyLogo
       },
       {
         name: 'Bybit P2P',
-        rate: providerRates?.bybit || null,
+        rate: serverRates?.bybit || null,
         url: 'https://www.bybit.com/vi-VN/fiat/trade/express/home/buy/USDT/VND',
         logo: bybitLogo
       },
       {
         name: 'MoonPay',
-        rate: providerRates?.moonpay || null,
+        rate: serverRates?.moonpay || null,
         url: 'https://www.moonpay.com/buy/usdt',
         logo: moonpayLogo
       },
       {
         name: 'OKX P2P',
-        rate: providerRates?.okx || null,
+        rate: clientRates?.okx || null,
         url: 'https://www.okx.com/p2p-markets/vnd/buy-usdt',
         logo: okxLogo
       },
     ];
-  }, [holdstationRate, providerRates]);
+  }, [holdstationRate, serverRates, clientRates]);
 
   const formatVND = (value: number) => {
     return new Intl.NumberFormat('en-US').format(Math.round(value));
@@ -104,7 +106,7 @@ export function ProviderComparison({ holdstationRate, isLoading }: ProviderCompa
     return allRates.length > 0 ? Math.min(...allRates) : null;
   }, [providers]);
 
-  const isLoadingAll = isLoading || isLoadingProviders;
+  const isLoadingAll = isLoading || isLoadingServer;
 
   const calculateDiffPercent = (rate: number) => {
     if (!bestRate || rate === bestRate) return null;
