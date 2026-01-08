@@ -34,7 +34,8 @@ export default function HomeClient({ initialRate, initialHistoricalRates }: Home
                         <div className="lg:col-span-7 flex flex-col justify-center gap-8">
                             <div className="space-y-4">
                                 <h1 className="text-4xl sm:text-5xl font-black leading-tight tracking-tight text-foreground">
-                                    Giá <span className="text-primary">USDT</span> hôm nay (USDT → VND)
+                                    Giá <span className="text-primary">USDT</span> hôm nay
+                                    <span className="block mt-2">(USDT → VND)</span>
                                 </h1>
                                 <p className="text-lg text-muted-foreground max-w-2xl">
                                     Theo dõi tỷ giá mua/bán trực tiếp từ các nhà cung cấp hàng đầu và quy đổi ngay lập tức.

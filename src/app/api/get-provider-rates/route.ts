@@ -15,7 +15,7 @@ const COMMON_HEADERS = {
     'Pragma': 'no-cache',
 };
 
-// "Spoof" headers for Strict Providers (Binance, OKX, Bybit, Alchemy)
+// "Spoof" headers for Strict Providers (Bybit)
 // These claim to be from the same origin as the target to bypass WAFs
 const SECURE_SPOOF_HEADERS = {
     ...COMMON_HEADERS,
@@ -27,7 +27,15 @@ const SECURE_SPOOF_HEADERS = {
     'Sec-Fetch-Site': 'same-origin', // Important: Must match the spoofed Origin
 };
 
-// Minimal headers for permissive providers (Onramp, MoonPay)
+// Simplified Spoof Headers for OKX (Avoid TLS fingerprint mismatches)
+const SIMPLE_SPOOF_HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Accept': 'application/json',
+    'Cache-Control': 'no-cache',
+    'Pragma': 'no-cache',
+};
+
+// Minimal headers for permissive providers (Onramp, MoonPay, Binance, Alchemy)
 const MINIMAL_HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     'Accept': 'application/json',
@@ -45,97 +53,6 @@ async function fetchWithRetry(url: string, options: RequestInit, retries = 2, ba
         return fetchWithRetry(url, options, retries - 1, backoff * 1.5);
     }
 }
-
-// Binance P2P Quoted Price API
-async function fetchBinanceRate(): Promise<number | null> {
-    try {
-        console.log('Fetching Binance P2P quoted price...');
-        const response = await fetchWithRetry('https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search', {
-            method: 'POST',
-            headers: {
-                ...SECURE_SPOOF_HEADERS,
-                'Content-Type': 'application/json',
-                'Origin': 'https://p2p.binance.com',
-                'Referer': 'https://p2p.binance.com/en/trade/buy/USDT'
-            },
-            body: JSON.stringify({
-                asset: "USDT",
-                fiat: "VND",
-                merchantCheck: false,
-                page: 1,
-                rows: 10,
-                tradeType: "BUY"
-            }),
-        });
-
-        if (!response.ok) return null;
-        const data = await response.json();
-
-        if (Array.isArray(data?.data) && data.data.length > 0) {
-            const bestAd = data.data.find((item: any) =>
-                !item.privilegeDesc &&
-                item.advertiser?.userType === 'merchant'
-            );
-            if (bestAd?.adv?.price) {
-                const rate = parseFloat(bestAd.adv.price);
-                return rate >= 1000 ? rate : null;
-            }
-        }
-        return null;
-    } catch (error) {
-        console.error('Error fetching Binance rate:', error);
-        return null;
-    }
-}
-
-// Onramp Money API - Use MINIMAL headers to avoid blocking
-async function fetchOnrampRate(): Promise<number | null> {
-    try {
-        console.log('Fetching Onramp Money rate...');
-        const response = await fetchWithRetry(
-            'https://api.onramp.money/onramp/api/v4/buy/public/coinDetails?coinCode=usdt&chainId=1&coinAmount=1&fiatType=5&appId=1&paymentType=1',
-            {
-                method: 'GET',
-                headers: MINIMAL_HEADERS // Strict WAF bypass not needed, keep it simple
-            }
-        );
-
-        if (!response.ok) return null;
-        const data = await response.json();
-        if (data?.data?.price) {
-            const rate = parseFloat(data.data.price);
-            return rate >= 1000 ? rate : null;
-        }
-        return null;
-    } catch (error) {
-        console.error('Error fetching Onramp rate:', error);
-        return null;
-    }
-}
-
-// "Robust" headers for AlchemyPay (Previous method)
-const ROBUST_HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-    'Accept-Language': 'en-US,en;q=0.9,vi;q=0.8',
-    'Cache-Control': 'no-cache',
-    'Pragma': 'no-cache',
-    'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
-    'Sec-Ch-Ua-Mobile': '?0',
-    'Sec-Ch-Ua-Platform': '"macOS"',
-    'Sec-Fetch-Dest': 'empty',
-    'Sec-Fetch-Mode': 'cors',
-    'Sec-Fetch-Site': 'same-origin',
-    'Upgrade-Insecure-Requests': '1'
-};
-
-// Simplified Spoof Headers for Binance/OKX (Avoid TLS fingerprint mismatches)
-const SIMPLE_SPOOF_HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Accept': 'application/json',
-    'Cache-Control': 'no-cache',
-    'Pragma': 'no-cache',
-};
 
 // Binance P2P Quoted Price API
 async function fetchBinanceRate(): Promise<number | null> {

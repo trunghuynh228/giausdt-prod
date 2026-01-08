@@ -151,9 +151,9 @@ export function UsdtCalculator({ rate, isLoading }: UsdtCalculatorProps) {
 
         {/* Swap Button */}
         <div className="flex justify-center -my-3 relative z-10">
-          <button className="rounded-full bg-white p-2 text-primary border border-border hover:bg-gray-50 hover:scale-110 transition-all shadow-sm">
+          <div className="rounded-full bg-white p-2 text-primary border border-border shadow-sm">
             <ArrowUpDown className="h-5 w-5" />
-          </button>
+          </div>
         </div>
 
         {/* YOU RECEIVE */}
