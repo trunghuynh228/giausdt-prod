@@ -61,10 +61,16 @@ async function fetchBinanceRate(): Promise<number | null> {
         const response = await fetchWithRetry('https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search', {
             method: 'POST',
             headers: {
-                ...MINIMAL_HEADERS,
-                'Content-Type': 'application/json',
-                'Origin': 'https://p2p.binance.com',
-                'clientType': 'web'
+                "Accept": "*/*",
+                "Accept-Language": "en-US,en;q=0.9",
+                "Cache-Control": "no-cache",
+                "Content-Type": "application/json",
+                "Host": "p2p.binance.com",
+                "Origin": "https://p2p.binance.com",
+                "Pragma": "no-cache",
+                "Referer": "https://p2p.binance.com/en/trade/buy/USDT",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "clientType": "web"
             },
             body: JSON.stringify({
                 asset: "USDT",
@@ -125,12 +131,29 @@ async function fetchOnrampRate(): Promise<number | null> {
 async function fetchAlchemyRate(): Promise<number | null> {
     try {
         console.log('Fetching AlchemyPay rate...');
+
+        // Robust keys for Alchemy (Restoring previous method)
+        const ALCHEMY_HEADERS = {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+            'Accept-Language': 'en-US,en;q=0.9,vi;q=0.8',
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache',
+            'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+            'Sec-Ch-Ua-Mobile': '?0',
+            'Sec-Ch-Ua-Platform': '"macOS"',
+            'Sec-Fetch-Dest': 'empty',
+            'Sec-Fetch-Mode': 'cors',
+            'Sec-Fetch-Site': 'same-origin',
+            'Upgrade-Insecure-Requests': '1',
+            'Content-Type': 'application/json',
+            'Origin': 'https://alchemypay.org',
+            'Referer': 'https://alchemypay.org/'
+        };
+
         const response = await fetchWithRetry('https://api.alchemypay.org/index/v2/page/buy/trade/quote', {
             method: 'POST',
-            headers: {
-                ...MINIMAL_HEADERS,
-                'Content-Type': 'application/json'
-            },
+            headers: ALCHEMY_HEADERS,
             body: JSON.stringify({
                 crypto: 'USDT',
                 fiat: 'VND',
@@ -163,21 +186,57 @@ async function fetchAlchemyRate(): Promise<number | null> {
 async function fetchBybitRate(): Promise<number | null> {
     try {
         console.log('Fetching Bybit P2P rate...');
-        const response = await fetchWithRetry('https://www.bybit.com/x-api/fiat/public/channel/payment-list-w1?fiat=VND&crypto=USDT&direction=buy&quantity=1', {
-            method: 'GET',
+        const response = await fetchWithRetry('https://www.bybit.com/x-api/fiat/otc/item/online', {
+            method: 'POST',
             headers: {
-                ...SECURE_SPOOF_HEADERS,
-                'Accept': 'application/json',
-                'Origin': 'https://www.bybit.com',
-                'Referer': 'https://www.bybit.com/vi-VN/fiat/trade/express/home/buy/USDT/VND'
-            }
+                'accept': 'application/json',
+                'accept-language': 'vi-VN',
+                'content-type': 'application/json;charset=UTF-8',
+                'guid': '0703a12e-8265-7e76-d877-c75852325a60',
+                'lang': 'vi-VN',
+                'origin': 'https://www.bybit.com',
+                'platform': 'PC',
+                'priority': 'u=1, i',
+                'referer': 'https://www.bybit.com/vi-VN/p2p/buy/USDT/VND',
+                'risktoken': 'dmVyMQ|YzZjZDU2NWE1N20wejE5ZGRpd3ByZjFiZjRiODRlMGYw||==',
+                'sec-ch-ua': '"Google Chrome";v="143", "Chromium";v="143", "Not A(Brand";v="24"',
+                'sec-ch-ua-mobile': '?0',
+                'sec-ch-ua-platform': '"macOS"',
+                'sec-fetch-dest': 'empty',
+                'sec-fetch-mode': 'cors',
+                'sec-fetch-site': 'same-origin',
+                'traceparent': '00-38db0d8c39ebb7dce867a846b7000be1-110d679bda76677c-01',
+                'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36'
+            },
+            body: JSON.stringify({
+                userId: "",
+                tokenId: "USDT",
+                currencyId: "VND",
+                payment: [],
+                side: "1",
+                size: "10",
+                page: "1",
+                amount: "",
+                vaMaker: false,
+                bulkMaker: false,
+                canTrade: true,
+                verificationFilter: 0,
+                sortType: "OVERALL_RANKING",
+                paymentPeriod: [],
+                itemRegion: 1
+            })
         });
 
         if (!response.ok) return null;
         const data = await response.json();
-        if (data?.ret_code === 0 && data?.result?.payments?.list?.[0]?.price) {
-            const price = parseFloat(data.result.payments.list[0].price);
-            return price >= 1000 ? price : null;
+
+        if (data?.ret_code === 0 && Array.isArray(data?.result?.items) && data.result.items.length > 0) {
+            // Get the first item's price
+            const firstItem = data.result.items[0];
+            if (firstItem?.price) {
+                const price = parseFloat(firstItem.price);
+                return price >= 1000 ? price : null;
+            }
         }
         return null;
     } catch (error) {

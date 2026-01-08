@@ -61,7 +61,7 @@ export function ProviderComparison({ holdstationRate, isLoading }: ProviderCompa
       {
         name: 'Bybit P2P',
         rate: providerRates?.bybit || null,
-        url: 'https://www.bybit.com/vi-VN/fiat/trade/express/home/buy/USDT/VND',
+        url: 'https://www.bybit.com/vi-VN/p2p/buy/USDT/VND',
         logo: bybitLogo
       },
       {

@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 // Context providers must be in a Client Component.
 import { Providers } from "./providers";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
+import { ScrollToTop } from "@/components/ScrollToTop";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -29,6 +30,7 @@ export default function RootLayout({
             <body>
                 <Providers>
                     <GoogleAnalytics />
+                    <ScrollToTop />
                     <TooltipProvider>
                         {children}
                         <Toaster />
