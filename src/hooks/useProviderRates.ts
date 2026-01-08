@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 
-
 interface ProviderRates {
   binance: number | null;
   onramp: number | null;
