@@ -42,7 +42,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
     return {
         title: `Giá USDT hôm nay: ${price} | Tỷ giá Mua Bán Rẻ Nhất - giausdt.vn`,
-        description: `Cập nhật tỷ giá USDT hôm nay ${new Date().toLocaleDateString('vi-VN')}. Giá mua: ${new Intl.NumberFormat('vi-VN').format(rate.sell)} VND, Giá bán: ${new Intl.NumberFormat('vi-VN').format(rate.buy)} VND. So sánh giá USDT từ Holdstation Pay, Binance P2P, Onramp Money, AlchemyPay, Bybit, MoonPay, OKX P2P.`,
+        description: `Cập nhật tỷ giá USDT hôm nay. Quy đổi giá hiện tại USDT sang Đồng Việt Nam (VND) nhanh chóng. Giá mua: ${new Intl.NumberFormat('vi-VN').format(rate.sell)} VND, Giá bán: ${new Intl.NumberFormat('vi-VN').format(rate.buy)} VND. So sánh giá USDT từ Holdstation Pay, Binance P2P, Onramp Money, AlchemyPay, Bybit, MoonPay, OKX P2P.`,
         openGraph: {
             title: `Giá USDT hôm nay: ${price} | Tỷ giá Mua Bán Rẻ Nhất`,
             description: `Theo dõi tỷ giá USDT/VND mới nhất. Mua bán USDT giá tốt nhất thị trường.`,
