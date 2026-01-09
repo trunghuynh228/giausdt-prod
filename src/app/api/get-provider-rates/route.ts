@@ -219,6 +219,9 @@ async function fetchAlchemyRate(): Promise<number | null> {
 
         const data = await response.json();
         console.log(`[ALCHEMY] Response data keys: ${Object.keys(data || {}).join(', ')}`);
+        // DEBUG: Log the actual data.data structure
+        console.log(`[ALCHEMY] data.data: ${JSON.stringify(data?.data || {}).substring(0, 1000)}`);
+        console.log(`[ALCHEMY] cryptoPrice: ${data?.data?.cryptoPrice}, fiatAmount: ${data?.data?.fiatAmount}, cryptoAmount: ${data?.data?.cryptoAmount}`);
 
         let rate = 0;
         if (data?.data?.cryptoPrice) {
