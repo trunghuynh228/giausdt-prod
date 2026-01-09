@@ -110,8 +110,16 @@ async function fetchBinanceRate(): Promise<number | null> {
             }),
         });
 
-        if (!response.ok) return null;
+        // DIAGNOSTIC: Log response details
+        console.log(`[BINANCE] Status: ${response.status}, StatusText: ${response.statusText}`);
+        if (!response.ok) {
+            const errorBody = await response.text();
+            console.error(`[BINANCE] Error response body: ${errorBody.substring(0, 500)}`);
+            return null;
+        }
+
         const data = await response.json();
+        console.log(`[BINANCE] Response data keys: ${Object.keys(data || {}).join(', ')}`);
 
         if (Array.isArray(data?.data) && data.data.length > 0) {
             const bestAd = data.data.find((item: any) =>
@@ -120,12 +128,14 @@ async function fetchBinanceRate(): Promise<number | null> {
             );
             if (bestAd?.adv?.price) {
                 const rate = parseFloat(bestAd.adv.price);
+                console.log(`[BINANCE] Found rate: ${rate}`);
                 return rate >= 1000 ? rate : null;
             }
         }
+        console.log('[BINANCE] No valid rate found in response');
         return null;
     } catch (error) {
-        console.error('Error fetching Binance rate:', error);
+        console.error('[BINANCE] Exception:', error);
         return null;
     }
 }
@@ -199,17 +209,27 @@ async function fetchAlchemyRate(): Promise<number | null> {
             }),
         });
 
-        if (!response.ok) return null;
+        // DIAGNOSTIC: Log response details
+        console.log(`[ALCHEMY] Status: ${response.status}, StatusText: ${response.statusText}`);
+        if (!response.ok) {
+            const errorBody = await response.text();
+            console.error(`[ALCHEMY] Error response body: ${errorBody.substring(0, 500)}`);
+            return null;
+        }
+
         const data = await response.json();
+        console.log(`[ALCHEMY] Response data keys: ${Object.keys(data || {}).join(', ')}`);
+
         let rate = 0;
         if (data?.data?.cryptoPrice) {
             rate = parseFloat(data.data.cryptoPrice);
         } else if (data?.data?.fiatAmount && data?.data?.cryptoAmount) {
             rate = parseFloat(data.data.fiatAmount) / parseFloat(data.data.cryptoAmount);
         }
+        console.log(`[ALCHEMY] Calculated rate: ${rate}`);
         return rate > 1000 ? rate : null;
     } catch (error) {
-        console.error('Error fetching AlchemyPay rate:', error);
+        console.error('[ALCHEMY] Exception:', error);
         return null;
     }
 }
