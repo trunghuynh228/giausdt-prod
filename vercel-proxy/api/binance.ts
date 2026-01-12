@@ -40,6 +40,7 @@ export default async function handler(request: Request) {
                 publisherType: 'merchant',
                 payTypes: [],
                 classifies: ['mass', 'profession', 'fiat_trade'],
+                transAmount: '200000000',
                 tradedWith: false,
                 followed: false
             }),

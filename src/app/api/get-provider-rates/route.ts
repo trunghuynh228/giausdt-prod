@@ -226,7 +226,7 @@ async function fetchBybitRate(): Promise<number | null> {
                 side: "1",
                 size: "10",
                 page: "1",
-                amount: "10000000",
+                amount: "200000000",
                 vaMaker: false,
                 bulkMaker: false,
                 canTrade: true,
@@ -276,10 +276,25 @@ async function fetchMoonPayRate(): Promise<number | null> {
 }
 
 // OKX P2P API
+// OKX P2P API - Use Vercel Proxy as primary
 async function fetchOkxRate(): Promise<number | null> {
+    const VERCEL_PROXY = 'https://giausdtvn-waf.vercel.app/api/okx';
+
     try {
-        console.log('Fetching OKX P2P rate...');
-        const response = await fetchWithRetry('https://www.okx.com/v3/c2c/tradingOrders/getMarketplaceAdsPrelogin?paymentMethod=all&quoteMinAmountPerOrder=10000000&side=sell&userType=all&sortType=price_asc&limit=100&cryptoCurrency=USDT&fiatCurrency=VND&currentPage=1&numberPerPage=5&t=' + Date.now(), {
+        console.log('Fetching OKX P2P via Vercel Proxy (Primary)...');
+        const vResponse = await fetch(VERCEL_PROXY);
+        if (vResponse.ok) {
+            const vData = await vResponse.json();
+            if (vData?.okx) return vData.okx;
+        }
+    } catch (e) {
+        console.error('OKX Proxy failed, trying direct fallback as last resort:', e);
+    }
+
+    // DIRECT FALLBACK
+    try {
+        console.log('Fetching OKX P2P rate (Fallback)...');
+        const response = await fetchWithRetry('https://www.okx.com/v3/c2c/tradingOrders/getMarketplaceAdsPrelogin?paymentMethod=all&quoteMinAmountPerOrder=200000000&side=sell&userType=all&sortType=price_asc&limit=100&cryptoCurrency=USDT&fiatCurrency=VND&currentPage=1&numberPerPage=5&t=' + Date.now(), {
             method: 'GET',
             headers: {
                 ...SIMPLE_SPOOF_HEADERS,
