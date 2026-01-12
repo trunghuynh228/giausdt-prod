@@ -226,7 +226,7 @@ async function fetchBybitRate(): Promise<number | null> {
                 side: "1",
                 size: "10",
                 page: "1",
-                amount: "",
+                amount: "10000000",
                 vaMaker: false,
                 bulkMaker: false,
                 canTrade: true,
