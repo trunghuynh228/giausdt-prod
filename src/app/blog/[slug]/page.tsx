@@ -7,6 +7,13 @@ interface Props {
     params: { slug: string };
 }
 
+// Ensure all blog posts are pre-rendered for performance and SEO
+export async function generateStaticParams() {
+    return blogPosts.map((post) => ({
+        slug: post.slug,
+    }));
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const post = blogPosts.find((p) => p.slug === params.slug);
     if (!post) return {};
