@@ -90,11 +90,33 @@ export const AboutSection = () => {
             </ul>
           </div>
 
-          {/* Keywords for SEO */}
+          {/* Knowledge / Blog */}
           <div>
-            <h4 className="text-sm font-bold text-foreground mb-3">Từ khóa phổ biến</h4>
-            <div className="flex flex-wrap gap-1.5">
-              {['Giá USDT', 'USDT VND', 'Tỷ giá USDT', 'Mua USDT', 'Bán USDT'].map((keyword) => (
+            <h4 className="text-sm font-bold text-foreground mb-3">Kiến thức crypto</h4>
+            <ul className="space-y-2 text-xs">
+              <li>
+                <a href="/blog" className="text-muted-foreground hover:text-primary transition-colors font-bold">
+                  Xem tất cả Blog
+                </a>
+              </li>
+              <li>
+                <a href="/blog/usdt-la-gi" className="text-muted-foreground hover:text-primary transition-colors">
+                  USDT là gì?
+                </a>
+              </li>
+              <li>
+                <a href="/blog/cach-mua-usdt-an-toan" className="text-muted-foreground hover:text-primary transition-colors">
+                  Cách mua USDT an toàn
+                </a>
+              </li>
+              <li>
+                <a href="/blog/ly-do-ty-gia-usdt-vnd-bien-dong" className="text-muted-foreground hover:text-primary transition-colors">
+                  Tại sao giá USDT biến động?
+                </a>
+              </li>
+            </ul>
+            <div className="mt-4 flex flex-wrap gap-1.5">
+              {['Giá USDT', 'USDT VND', 'Tỷ giá USDT'].map((keyword) => (
                 <span
                   key={keyword}
                   className="inline-block rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground"
