@@ -142,7 +142,7 @@ export function ProviderComparison({ holdstationRate, isLoading }: ProviderCompa
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
         <div>
           <h3 className="text-2xl font-bold text-foreground tracking-tight">So sánh nhà cung cấp</h3>
-          <p className="text-muted-foreground mt-1">Tìm giá tốt nhất từ các sàn P2P và nền tảng giao dịch hàng đầu.</p>
+          <p className="text-muted-foreground mt-1">Tìm giá tốt nhất từ các giải pháp thanh toán, sàn P2P và nền tảng giao dịch hàng đầu.</p>
         </div>
       </div>
 
