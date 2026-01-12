@@ -84,11 +84,21 @@ export function ProviderComparison({ holdstationRate, isLoading }: ProviderCompa
   };
 
   // Always show Holdstation Pay first, then sort others by rate
+  // IMPORTANT: Filter out providers that have a BETTER (lower) rate than Holdstation
   const sortedProviders = useMemo(() => {
     const holdstation = providers.find(p => p.name === 'Holdstation Pay');
+    const holdstationRateVal = holdstation?.rate;
     const others = providers.filter(p => p.name !== 'Holdstation Pay');
 
-    const othersWithRates = others.filter(p => p.rate !== null);
+    const othersWithRates = others.filter(p => {
+      if (p.rate === null) return false;
+      // If Holdstation has a rate, only show others if they are NOT better (lower)
+      if (holdstationRateVal !== null && holdstationRateVal !== undefined) {
+        return p.rate >= holdstationRateVal;
+      }
+      return true;
+    });
+
     const othersWithoutRates = others.filter(p => p.rate === null);
 
     const sortedOthers = [...othersWithRates].sort((a, b) => (a.rate || 0) - (b.rate || 0));
@@ -98,11 +108,11 @@ export function ProviderComparison({ holdstationRate, isLoading }: ProviderCompa
       : [...sortedOthers, ...othersWithoutRates];
   }, [providers]);
 
-  // Find the best rate among all providers
+  // Find the best rate among VISIBLE providers
   const bestRate = useMemo(() => {
-    const allRates = providers.filter(p => p.rate !== null).map(p => p.rate!);
+    const allRates = sortedProviders.filter(p => p.rate !== null).map(p => p.rate!);
     return allRates.length > 0 ? Math.min(...allRates) : null;
-  }, [providers]);
+  }, [sortedProviders]);
 
   const isLoadingAll = isLoading || isLoadingProviders;
 
