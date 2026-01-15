@@ -15,9 +15,9 @@ export const metadata: Metadata = {
     title: "Giá USDT hôm nay | Tỷ giá USDT/VND theo thời gian thực - giausdt.vn",
     description: "Cập nhật tỷ giá USDT theo thời gian thực từ các sàn Holdstation Pay, Binance P2P, Onramp Money, AlchemyPay, Bybit, MoonPay, OKX P2P... So sánh giá mua bán USDT tốt nhất hôm nay.",
     icons: {
-        icon: '/tether-logo.svg',
-        shortcut: '/tether-logo.svg',
-        apple: '/tether-logo.svg',
+        icon: '/favicon.ico',
+        shortcut: '/favicon.ico',
+        apple: '/favicon.png',
     },
     openGraph: {
         siteName: 'GiaUSDT.vn',
