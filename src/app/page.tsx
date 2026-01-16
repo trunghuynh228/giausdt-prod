@@ -38,9 +38,9 @@ async function getHistoricalRates() {
 
 export async function generateMetadata(): Promise<Metadata> {
     const rate = await getCurrentRate();
-    // Default values if fetch fails (for metadata only)
-    const displayBuy = rate ? rate.buy : 25800;
-    const displaySell = rate ? rate.sell : 25600;
+    // Default generic values for SEO if fetch fails (approx market rate)
+    const displayBuy = rate ? rate.buy : 26500;
+    const displaySell = rate ? rate.sell : 26400;
 
     const price = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(displayBuy);
 

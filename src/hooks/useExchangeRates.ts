@@ -13,9 +13,13 @@ export function useCurrentRate(initialData?: ExchangeRate) {
       }
       const data = await response.json();
 
+      if (!data?.buy || !data?.sell) {
+        return null;
+      }
+
       return {
-        buy: data.buy || 25800,
-        sell: data.sell || 25600,
+        buy: data.buy,
+        sell: data.sell,
         timestamp: data.created_at || new Date().toISOString(),
       };
     },
