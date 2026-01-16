@@ -1,5 +1,7 @@
+export const runtime = 'edge'; // Required for Cloudflare Pages with dynamic rendering
 
 import { Metadata } from 'next';
+
 import HomeClient from '@/components/HomeClient';
 import { parseHistoricalData } from '@/lib/utils';
 import { ExchangeRate } from '@/types/rates';
