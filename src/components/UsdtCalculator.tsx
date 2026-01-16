@@ -190,7 +190,7 @@ export function UsdtCalculator({ rate, isLoading }: UsdtCalculatorProps) {
         {/* Action Button */}
         {mode === 'buy' ? (
           <a
-            href="https://pay.holdstation.com/ref/9TCFHc"
+            href={`https://pay.holdstation.com/pay?refCode=9TCFHc&method=buy&chain_id=56&token_address=0x55d398326f99059ff775485246999027b3197955&currency=vnd&wallet=0x8D557DC5f457108F133fdFf883927941040da69E&amount=${rawInput || '0'}`}
             target="_blank"
             rel="noopener noreferrer"
             className="block w-full py-4 text-center text-white font-bold rounded-xl bg-green-500 hover:bg-green-600 transition-colors"
@@ -199,7 +199,7 @@ export function UsdtCalculator({ rate, isLoading }: UsdtCalculatorProps) {
           </a>
         ) : (
           <a
-            href="https://pay.holdstation.com/ref/9TCFHcsell&chain_id=56&token_address=0x55d398326f99059ff775485246999027b3197955&currency=usd"
+            href={`https://pay.holdstation.com/pay?refCode=9TCFHc&method=sell&chain_id=56&token_address=0x55d398326f99059ff775485246999027b3197955&currency=usd&wallet=0x8D557DC5f457108F133fdFf883927941040da69E&amount=${rawInput || '0'}`}
             target="_blank"
             rel="noopener noreferrer"
             className="block w-full py-4 text-center text-white font-bold rounded-xl bg-red-500 hover:bg-red-600 transition-colors"
