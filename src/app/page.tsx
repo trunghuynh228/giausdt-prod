@@ -10,12 +10,13 @@ const HISTORICAL_RATES_API = 'https://dashboard2.holdstation.com/public/question
 
 async function getCurrentRate(): Promise<ExchangeRate | null> {
     try {
-        const response = await fetch(HOLDSTATION_RATES_API, { next: { revalidate: 30 } }); // Revalidate every 30s
+        const response = await fetch(HOLDSTATION_RATES_API, { cache: 'no-store' }); // Always fetch fresh data
         if (!response.ok) throw new Error('Failed to fetch rates');
         const data = await response.json();
+
         return {
-            buy: data.buy || 25800,
-            sell: data.sell || 25600,
+            buy: data.buy,
+            sell: data.sell,
             timestamp: data.created_at || new Date().toISOString(),
         };
     } catch (error) {
