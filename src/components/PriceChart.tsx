@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useMemo } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { HistoricalRate, TimeRange } from '@/types/rates';
@@ -21,12 +23,12 @@ export function PriceChart({ data, isLoading, className }: PriceChartProps) {
 
   const filteredData = useMemo(() => {
     if (!data || data.length === 0) return [];
-    
+
     const now = new Date();
     // Set to start of today for consistent comparison
     now.setHours(0, 0, 0, 0);
     let daysBack: number;
-    
+
     switch (selectedRange) {
       case '1D':
         daysBack = 1;
@@ -40,9 +42,9 @@ export function PriceChart({ data, isLoading, className }: PriceChartProps) {
       default:
         daysBack = 6;
     }
-    
+
     const startDate = new Date(now.getTime() - daysBack * 24 * 60 * 60 * 1000);
-    
+
     return data.filter(item => {
       const itemDate = new Date(item.date);
       itemDate.setHours(0, 0, 0, 0);
@@ -54,11 +56,11 @@ export function PriceChart({ data, isLoading, className }: PriceChartProps) {
     const date = new Date(dateStr);
     const now = new Date();
     const isToday = date.toDateString() === now.toDateString();
-    
+
     if (isToday) {
       return 'Hôm nay';
     }
-    
+
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
@@ -120,18 +122,17 @@ export function PriceChart({ data, isLoading, className }: PriceChartProps) {
             <span className="h-3 w-3 rounded-full bg-destructive"></span>
             <span className="text-sm font-bold text-foreground">Bán</span>
           </div>
-          
+
           {/* Time range selector */}
           <div className="flex items-center gap-2">
             {timeRanges.map(({ label, value }) => (
               <button
                 key={label}
                 onClick={() => setSelectedRange(value)}
-                className={`px-3 py-1 text-xs font-bold rounded-full transition-colors ${
-                  selectedRange === value
+                className={`px-3 py-1 text-xs font-bold rounded-full transition-colors ${selectedRange === value
                     ? 'bg-primary/10 text-primary border border-primary/20'
                     : 'text-muted-foreground hover:bg-gray-100'
-                }`}
+                  }`}
               >
                 {label}
               </button>
@@ -147,23 +148,23 @@ export function PriceChart({ data, isLoading, className }: PriceChartProps) {
             <AreaChart data={filteredData} margin={{ top: 20, right: 10, left: 5, bottom: 0 }}>
               <defs>
                 <linearGradient id="gradientBuy" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#10b981" stopOpacity={0.2}/>
-                  <stop offset="100%" stopColor="#ffffff" stopOpacity={0}/>
+                  <stop offset="0%" stopColor="#10b981" stopOpacity={0.2} />
+                  <stop offset="100%" stopColor="#ffffff" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="gradientSell" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#ef4444" stopOpacity={0.1}/>
-                  <stop offset="100%" stopColor="#ffffff" stopOpacity={0}/>
+                  <stop offset="0%" stopColor="#ef4444" stopOpacity={0.1} />
+                  <stop offset="100%" stopColor="#ffffff" stopOpacity={0} />
                 </linearGradient>
                 {/* Background gradient for chart area only */}
                 <linearGradient id="chartBg" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="hsl(142, 76%, 36%)" stopOpacity={0.05}/>
-                  <stop offset="100%" stopColor="hsl(142, 76%, 36%)" stopOpacity={0}/>
+                  <stop offset="0%" stopColor="hsl(142, 76%, 36%)" stopOpacity={0.05} />
+                  <stop offset="100%" stopColor="hsl(142, 76%, 36%)" stopOpacity={0} />
                 </linearGradient>
               </defs>
               {/* Background rectangle for chart area */}
               <rect x="55" y="0" width="100%" height="100%" fill="url(#chartBg)" rx="8" />
-              <XAxis 
-                dataKey="date" 
+              <XAxis
+                dataKey="date"
                 tickFormatter={formatDate}
                 tick={{ fontSize: 11, fill: '#64748b', fontWeight: 500 }}
                 tickLine={false}
@@ -171,7 +172,7 @@ export function PriceChart({ data, isLoading, className }: PriceChartProps) {
                 interval="preserveStartEnd"
                 dy={10}
               />
-              <YAxis 
+              <YAxis
                 tickFormatter={(v) => formatVND(v)}
                 tick={{ fontSize: 11, fill: '#64748b', fontWeight: 500 }}
                 tickLine={false}

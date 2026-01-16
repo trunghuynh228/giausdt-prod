@@ -1,3 +1,5 @@
+'use client';
+
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { ExchangeRate } from '@/types/rates';
 import { Skeleton } from '@/components/ui/skeleton';

@@ -1,3 +1,5 @@
+'use client';
+
 import { Header } from '@/components/Header';
 import { CurrentRateCard } from '@/components/CurrentRateCard';
 import { PriceChart } from '@/components/PriceChart';

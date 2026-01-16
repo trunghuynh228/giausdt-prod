@@ -1,3 +1,5 @@
+'use client';
+
 import { useMemo } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import { ExchangeRate } from '@/types/rates';
