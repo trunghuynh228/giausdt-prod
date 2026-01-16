@@ -8,7 +8,7 @@ import { ExchangeRate } from '@/types/rates';
 const HOLDSTATION_RATES_API = 'https://iakzvzwriyxyshfggbwu.supabase.co/functions/v1/get_exchange_rates';
 const HISTORICAL_RATES_API = 'https://dashboard2.holdstation.com/public/question/f8d68d7d-ce0c-4abc-bf4d-e50fa980d7dd.json';
 
-async function getCurrentRate(): Promise<ExchangeRate> {
+async function getCurrentRate(): Promise<ExchangeRate | null> {
     try {
         const response = await fetch(HOLDSTATION_RATES_API, { next: { revalidate: 30 } }); // Revalidate every 30s
         if (!response.ok) throw new Error('Failed to fetch rates');
@@ -20,7 +20,7 @@ async function getCurrentRate(): Promise<ExchangeRate> {
         };
     } catch (error) {
         console.error('Error fetching current rate:', error);
-        return { buy: 25800, sell: 25600, timestamp: new Date().toISOString() }; // Fallback
+        return null;
     }
 }
 
@@ -38,11 +38,15 @@ async function getHistoricalRates() {
 
 export async function generateMetadata(): Promise<Metadata> {
     const rate = await getCurrentRate();
-    const price = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(rate.buy);
+    // Default values if fetch fails (for metadata only)
+    const displayBuy = rate ? rate.buy : 25800;
+    const displaySell = rate ? rate.sell : 25600;
+
+    const price = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(displayBuy);
 
     return {
         title: `Giá USDT hôm nay: ${price} | Tỷ giá Mua Bán Rẻ Nhất - giausdt.vn`,
-        description: `Cập nhật tỷ giá USDT hôm nay. Quy đổi giá hiện tại USDT sang Đồng Việt Nam (VND) nhanh chóng. Giá mua: ${new Intl.NumberFormat('vi-VN').format(rate.sell)} VND, Giá bán: ${new Intl.NumberFormat('vi-VN').format(rate.buy)} VND. So sánh giá USDT từ Holdstation Pay, Binance P2P, Onramp Money, AlchemyPay, Bybit, MoonPay, OKX P2P.`,
+        description: `Cập nhật tỷ giá USDT hôm nay. Quy đổi giá hiện tại USDT sang Đồng Việt Nam (VND) nhanh chóng. Giá mua: ${new Intl.NumberFormat('vi-VN').format(displaySell)} VND, Giá bán: ${new Intl.NumberFormat('vi-VN').format(displayBuy)} VND. So sánh giá USDT từ Holdstation Pay, Binance P2P, Onramp Money, AlchemyPay, Bybit, MoonPay, OKX P2P.`,
         openGraph: {
             title: `Giá USDT hôm nay: ${price} | Tỷ giá Mua Bán Rẻ Nhất`,
             description: `Theo dõi tỷ giá USDT/VND mới nhất. Mua bán USDT giá tốt nhất thị trường.`,
@@ -61,6 +65,8 @@ export default async function Page() {
     const currentRate = await getCurrentRate();
     const historicalRates = await getHistoricalRates();
 
+    const safeRate = currentRate || undefined;
+
     return (
         <>
             <script
@@ -77,7 +83,7 @@ export default async function Page() {
                         },
                         'offers': {
                             '@type': 'Offer',
-                            'price': currentRate.buy,
+                            'price': safeRate?.buy || 25000,
                             'priceCurrency': 'VND',
                             'availability': 'https://schema.org/InStock',
                             'priceValidUntil': new Date(Date.now() + 60000).toISOString(),
@@ -91,7 +97,7 @@ export default async function Page() {
                 }}
             />
             <HomeClient
-                initialRate={currentRate}
+                initialRate={safeRate}
                 initialHistoricalRates={historicalRates}
             />
         </>
