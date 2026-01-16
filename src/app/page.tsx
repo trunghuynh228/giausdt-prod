@@ -1,4 +1,3 @@
-export const runtime = 'edge'; // Required for Cloudflare Pages with dynamic rendering
 
 import { Metadata } from 'next';
 
@@ -12,7 +11,7 @@ const HISTORICAL_RATES_API = 'https://dashboard2.holdstation.com/public/question
 
 async function getCurrentRate(): Promise<ExchangeRate | null> {
     try {
-        const response = await fetch(HOLDSTATION_RATES_API, { cache: 'no-store' }); // Always fetch fresh data
+        const response = await fetch(HOLDSTATION_RATES_API, { next: { revalidate: 30 } }); // Revalidate every 30s
         if (!response.ok) throw new Error('Failed to fetch rates');
         const data = await response.json();
 
@@ -100,7 +99,7 @@ export default async function Page() {
                 }}
             />
             <HomeClient
-                initialRate={safeRate}
+                initialRate={undefined} // Force client-side fetch to avoid stale server data
                 initialHistoricalRates={historicalRates}
             />
         </>
