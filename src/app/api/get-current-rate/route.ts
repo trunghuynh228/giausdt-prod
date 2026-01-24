@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     try {
         console.log('Fetching current rate from:', HOLDSTATION_API);
 
-        const response = await fetch(HOLDSTATION_API);
+        const response = await fetch(HOLDSTATION_API, { cache: 'no-store' });
 
         if (!response.ok) {
             console.error('Holdstation API error:', response.status, response.statusText);

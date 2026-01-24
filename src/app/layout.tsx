@@ -37,6 +37,18 @@ export default function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning>
             <body>
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{
+                        __html: JSON.stringify({
+                            '@context': 'https://schema.org',
+                            '@type': 'WebSite',
+                            'name': 'GiaUSDT.vn',
+                            'alternateName': ['GiaUSDT', 'Gia USDT'],
+                            'url': 'https://giausdt.vn'
+                        })
+                    }}
+                />
                 <Providers>
                     <GoogleAnalytics />
                     <ScrollToTop />

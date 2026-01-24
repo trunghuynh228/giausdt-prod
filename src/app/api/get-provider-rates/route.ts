@@ -42,7 +42,11 @@ const MINIMAL_HEADERS = {
 
 async function fetchWithRetry(url: string, options: RequestInit, retries = 2, backoff = 1000): Promise<Response> {
     try {
-        const response = await fetch(url, options);
+        const fetchOptions: RequestInit = {
+            ...options,
+            cache: 'no-store'
+        };
+        const response = await fetch(url, fetchOptions);
         if (response.ok) return response;
         throw new Error(`Request failed with status ${response.status}`);
     } catch (error) {
@@ -59,7 +63,7 @@ async function fetchBinanceRate(): Promise<number | null> {
 
     try {
         console.log('Fetching Binance P2P via Vercel Proxy (Primary)...');
-        const vResponse = await fetch(VERCEL_PROXY);
+        const vResponse = await fetch(VERCEL_PROXY, { cache: 'no-store' });
         if (vResponse.ok) {
             const vData = await vResponse.json();
             if (vData?.binance) return vData.binance;
@@ -145,7 +149,7 @@ async function fetchAlchemyRate(): Promise<number | null> {
 
     try {
         console.log('Fetching AlchemyPay via Vercel Proxy (Primary)...');
-        const vResponse = await fetch(VERCEL_PROXY);
+        const vResponse = await fetch(VERCEL_PROXY, { cache: 'no-store' });
         if (vResponse.ok) {
             const vData = await vResponse.json();
             if (vData?.alchemy) return vData.alchemy;
@@ -282,7 +286,7 @@ async function fetchOkxRate(): Promise<number | null> {
 
     try {
         console.log('Fetching OKX P2P via Vercel Proxy (Primary)...');
-        const vResponse = await fetch(VERCEL_PROXY);
+        const vResponse = await fetch(VERCEL_PROXY, { cache: 'no-store' });
         if (vResponse.ok) {
             const vData = await vResponse.json();
             if (vData?.okx) return vData.okx;
