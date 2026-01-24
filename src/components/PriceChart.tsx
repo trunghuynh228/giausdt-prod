@@ -130,8 +130,8 @@ export function PriceChart({ data, isLoading, className }: PriceChartProps) {
                 key={label}
                 onClick={() => setSelectedRange(value)}
                 className={`px-3 py-1 text-xs font-bold rounded-full transition-colors ${selectedRange === value
-                    ? 'bg-primary/10 text-primary border border-primary/20'
-                    : 'text-muted-foreground hover:bg-gray-100'
+                  ? 'bg-primary/10 text-primary border border-primary/20'
+                  : 'text-muted-foreground hover:bg-gray-100'
                   }`}
               >
                 {label}
@@ -185,7 +185,7 @@ export function PriceChart({ data, isLoading, className }: PriceChartProps) {
               <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#e2e8f0', strokeDasharray: '4 4' }} />
               {showUserBuy && (
                 <Area
-                  type="monotone"
+                  type="linear"
                   dataKey="buy"
                   stroke="#10b981"
                   strokeWidth={3}
@@ -197,7 +197,7 @@ export function PriceChart({ data, isLoading, className }: PriceChartProps) {
               )}
               {showUserSell && (
                 <Area
-                  type="monotone"
+                  type="linear"
                   dataKey="sell"
                   stroke="#ef4444"
                   strokeWidth={3}
