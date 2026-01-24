@@ -23,7 +23,7 @@ export const metadata: Metadata = {
         apple: '/favicon.png',
     },
     openGraph: {
-        siteName: 'GiaUSDT.vn',
+        siteName: 'Giá USDT',
         locale: 'vi_VN',
         type: 'website',
     },
@@ -43,8 +43,8 @@ export default function RootLayout({
                         __html: JSON.stringify({
                             '@context': 'https://schema.org',
                             '@type': 'WebSite',
-                            'name': 'GiaUSDT.vn',
-                            'alternateName': ['GiaUSDT', 'Gia USDT'],
+                            'name': 'Giá USDT',
+                            'alternateName': ['GiaUSDT', 'Gia USDT', 'GiaUSDT.vn'],
                             'url': 'https://giausdt.vn'
                         })
                     }}

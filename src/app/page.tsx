@@ -92,7 +92,7 @@ export default async function Page() {
                         },
                         'provider': {
                             '@type': 'Organization',
-                            'name': 'GiaUSDT.vn',
+                            'name': 'Giá USDT',
                             'url': 'https://giausdt.vn'
                         }
                     })
