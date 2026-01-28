@@ -6,7 +6,7 @@ const corsHeaders = {
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const HOLDSTATION_API = 'https://iakzvzwriyxyshfggbwu.supabase.co/functions/v1/get_exchange_rates';
+const HOLDSTATION_API = 'https://rpiuhqxzlqtubhcpjoiy.supabase.co/functions/v1/get_exchange_rates';
 
 export async function GET(request: Request) {
     try {

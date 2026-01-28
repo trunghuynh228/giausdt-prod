@@ -6,7 +6,7 @@ import { parseHistoricalData } from '@/lib/utils';
 import { ExchangeRate } from '@/types/rates';
 
 // API Endpoints
-const HOLDSTATION_RATES_API = 'https://iakzvzwriyxyshfggbwu.supabase.co/functions/v1/get_exchange_rates';
+const HOLDSTATION_RATES_API = 'https://rpiuhqxzlqtubhcpjoiy.supabase.co/functions/v1/get_exchange_rates';
 const HISTORICAL_RATES_API = 'https://dashboard2.holdstation.com/public/question/f8d68d7d-ce0c-4abc-bf4d-e50fa980d7dd.json';
 
 async function getCurrentRate(): Promise<ExchangeRate | null> {
